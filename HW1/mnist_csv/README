@@ -1,0 +1,10 @@
+The following matrices are included:
+
+train# = 20 x 500 matrix of training data for digit # (# = 0 through 9).
+
+test# = 20 x 50 matrix of testing data for digit # (# = 0 through 9). Of course the class information is only used to assess accuracy of the predictions here, whereas it is used for training the classifiers with the training set.
+
+Q = 784 x 20 matrix of principal components. The original data contains 28 x 28 images that are vectorized into 784 x 1 vectors. I projected the data onto its first 20 principle components to reduce the dimensionality of the problem. These components are contained in Q. You can see the information captured by these 20 vectors as follows: For a 20 x 1 vector x from a training or testing matrix, let y = Q*x. Then show this as an image using imagesc(reshape(y,28,28)) for matlab. The image will probably need to be rotated and/or flipped.
+
+
+***IMPORTANT*** Before training and testing the classifier, be sure to add a 21st dimension equal to all ones to the data in order to allow for a shift in the decision boundary! Therefore, the classification vectors w_0, ..., w_9 should be 21 dimensions.
