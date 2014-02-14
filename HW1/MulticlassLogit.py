@@ -25,8 +25,20 @@ def getPCA(base_dir):
 def update(w, X, N, K, alpha, lamb):
 
     gradient = np.zeros(K)
-    for i in range(N):
-		
+    I = range(N)
+    J = range(K) + 1
+
+    
+
+    for i in I:	
+	denom_sum = 0
+	num = np.zeros(K)
+	for j in J:
+	    num[j] = np.exp(w[j]*X[i])
+	    denom_sum += num[j] 
+    
+	    
+	X[i]		
 
     w_new = w - alpha * gradient 
     return w_new
@@ -45,6 +57,12 @@ def gradient(X, y, alpha, eps):
 	w_new = update(w, X, N, K, alpha)
 
     return w
+
+
+def confusion_matrix(w_opt, X, y):
+    conf_mat = np.zeros((10,10))
+
+    return conf_mat
 
 def main():
     base_dir = '/Users/LJ/BMML/HW1/mnist_csv/'
