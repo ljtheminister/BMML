@@ -45,17 +45,22 @@ def update_batch(w, X, y, N, K, alpha, lamb):
     return w_new
 
 def update_stochastic(w, K, x_i, y_i, alpha, lamb):
-
-    J = range(K)
+    # Indicator term
     indicator = np.zeros(K)
     C = y_i
     indicator[C] = 1
-
+    # Fraction term
     denom_sum = 0
     num = np.zeros(K)
+    J = range(K)
     for j in J:
 	num[j] = np.exp(w[j]*X[i])
 	denom_sum += num[j] 
+    # Compute gradient
+    gradient = x_i * (indicator - num/denom_sum)
+    # Update weight vector
+    w_new = w - alpha * gradient
+    return w_new
     
 
 def gradient_batch(X, y, alpha, eps):
@@ -64,21 +69,29 @@ def gradient_batch(X, y, alpha, eps):
     idx = range(N)    
     w = np.zeros(K)
     w_new = update(w, X, N, K, alpha)
-
     # repeat until convergence
     while np.linalg.norm(max(np.abs(w_new - w) > eps)):
 	w = w_new
 	w_new = update(w, X, N, K, alpha)
-
-    return w
+    # convergence of w's
+    return w_new
 
 def gradient_stochastic(X, y, alpha, eps):
     N, K = np.shape(X)
-    idx = range(N)
-    w = np.zeros(K)
+    I = np.random.permutation(N) #shuffle examples
+    w = np.zeros(K) #initialize weight vector
+ 
+    for i in I:
+	w_new = update_stochastic(w, K, X[i], y[i], alpha)
+
+    while np.linalg.norm(max(np.abs(w_new - w) > eps)):
+	w = w_new
+	I = np.random.permutation(N) #keep shuffling
+	 for i in I:
+	w_new = update_stochastic(w, K, X[i], y[i], alpha)
+
+
     
-
-
 
 def confusion_matrix(w_opt, X, y):
     conf_mat = np.zeros((10,10))
