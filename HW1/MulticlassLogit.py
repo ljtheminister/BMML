@@ -22,33 +22,47 @@ def getPCA(base_dir):
     princomps = pd.read_csv(base_dir + 'Q.csv', header=None)
     return princomps
 
-def update(w, X, N, K, alpha, lamb):
+def update_batch(w, X, y, N, K, alpha, lamb):
 
-    gradient = np.zeros(K)
     I = range(N)
-    J = range(K) + 1
-
-    
+    J = range(K)
+    gradient = np.zeros(K)
 
     for i in I:	
+	indicator = np.zeros(K)
+	C = y[i]
+	indicator[C] = 1
+	
 	denom_sum = 0
 	num = np.zeros(K)
 	for j in J:
 	    num[j] = np.exp(w[j]*X[i])
 	    denom_sum += num[j] 
-    
-	    
-	X[i]		
+
+	gradient += np.dot(X[i], indicator- num/denom_sum)
 
     w_new = w - alpha * gradient 
     return w_new
 
+def update_stochastic(w, K, x_i, y_i, alpha, lamb):
 
-def gradient(X, y, alpha, eps):
+    J = range(K)
+    indicator = np.zeros(K)
+    C = y_i
+    indicator[C] = 1
+
+    denom_sum = 0
+    num = np.zeros(K)
+    for j in J:
+	num[j] = np.exp(w[j]*X[i])
+	denom_sum += num[j] 
+    
+
+def gradient_batch(X, y, alpha, eps):
     # first iteration
     N, K = np.shape(X)
     idx = range(N)    
-    w = np.zeros(N)
+    w = np.zeros(K)
     w_new = update(w, X, N, K, alpha)
 
     # repeat until convergence
@@ -57,6 +71,13 @@ def gradient(X, y, alpha, eps):
 	w_new = update(w, X, N, K, alpha)
 
     return w
+
+def gradient_stochastic(X, y, alpha, eps):
+    N, K = np.shape(X)
+    idx = range(N)
+    w = np.zeros(K)
+    
+
 
 
 def confusion_matrix(w_opt, X, y):
