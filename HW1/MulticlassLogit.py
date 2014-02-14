@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 
-def readMNISTdata(base_dir, type):
+def read_MNISTdata(base_dir, type):
     X = []
     Y = []
     digits = range(10)
@@ -18,9 +18,13 @@ def readMNISTdata(base_dir, type):
 	X = np.append(np.ones((N,1)), X, axis=1)
     return X, Y
 
-def getPCA(base_dir):
+def get_PCA(base_dir):
     princomps = pd.read_csv(base_dir + 'Q.csv', header=None)
     return princomps
+
+def reconstruct_image(x_i, Q, y_i):
+    X = np.dot(Q, x_i[1:]) 
+
 
 def update_batch(w, X, y, N, K, alpha, lamb):
 
@@ -90,7 +94,15 @@ def gradient_stochastic(X, y, alpha, eps):
 	 for i in I:
 	w_new = update_stochastic(w, K, X[i], y[i], alpha)
 
-
+def gradient_ascent(X, y, alpha, eps, algo_type=None)
+    if algo_type == None:
+	raise ValueError('Invalid Arguments Given')	
+    elif algo_type == 'batch':
+	return gradient_batch(X, y, alpha, eps)
+    elif algo_type == 'stochastic':
+	return gradient_stochastic(X, y, alpha, eps)
+    elif algo_type == 'mini':
+	return gradient_mini(X, y, alpha, eps)
     
 
 def confusion_matrix(w_opt, X, y):
