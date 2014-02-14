@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
+import PIL
 
 def read_MNISTdata(base_dir, type):
     X = []
@@ -24,7 +25,7 @@ def get_PCA(base_dir):
 
 def reconstruct_image(x_i, Q, y_i):
     X = np.dot(Q, x_i[1:]) 
-
+    X_sq = np.reshape(X, (28,28))
 
 def update_batch(w, X, y, N, K, alpha, lamb):
 
@@ -107,7 +108,6 @@ def gradient_ascent(X, y, alpha, eps, algo_type=None)
 
 def confusion_matrix(w_opt, X, y):
     conf_mat = np.zeros((10,10))
-
     return conf_mat
 
 def main():
