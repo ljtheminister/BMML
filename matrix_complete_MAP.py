@@ -1,6 +1,6 @@
 import numpy as np
 import subprocess
-
+	
 
 # parameterization
 sigma = np.sqrt(0.25)
@@ -94,6 +94,18 @@ for movie_id in xrange(M):
 	except:
 	    pass
 
+
+
+#initialization
+U = np.zeros((N,d))
+V = np.zeros((M,d))
+
+mean = np.zeros(d)
+cov = np.power(sigma,2)*I
+for i in xrange(N):
+    U[i,:] = np.random.multivariate_normal(mean, cov)
+for j in xrange(M):
+    V[j,:] = np.random.multivariate_normal(mean, cov)
 
 
 
