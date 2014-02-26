@@ -123,15 +123,26 @@ for j in xrange(M):
 
 
 
-
-
-
+## GIBBS SAMPLING
 N_iterations = 100
-
 
 N_Gibbs = 500
 burn_in = 250
 thinning = 25
+
+
+# initialize model parameters U, V
+
+# 
+for t in xrange(N_iterations):
+    # sample hyperparameters
+
+
+    # sample user features
+
+
+    # sample movie features
+
 
 
 
