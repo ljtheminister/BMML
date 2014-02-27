@@ -1,7 +1,7 @@
 import numpy as np
 import subprocess
+import os
 	
-
 # parameterization
 sigma = np.sqrt(0.25)
 lamb = 10
@@ -17,7 +17,7 @@ def map_to_ratings_N(x, ratings_range):
     idx = (np.abs(ratings_range - x)).argmin()
     return ratings_range[idx]
 
-
+'''
 def load_data(filename):
     X, y = [], [] 
     with open(filename, 'rb') as f:
@@ -26,7 +26,7 @@ def load_data(filename):
 	    X.append((int(row[0])-1, int(row[1])-1))
 	    y.append(int(row[2]))
     return X, y
-
+'''
 
 def load_data_dict(filename):
     data = dict()
@@ -46,12 +46,15 @@ def gibbs_sampler():
 
 if __name__ == "__main__":
 
-base_dir = '../movie_ratings/'
+base_dir = os.path.join(os.getcwd(), 'movie_ratings')
+
+'''
 X_train, y_train = load_data(base_dir + 'ratings.txt')
 X_test, y_test = load_data(base_dir + 'ratings_test.txt')
+'''
 
-train = load_data_dict(base_dir + 'ratings.txt')
-test = load_data_dict(base_dir + 'ratings_test.txt')
+train = load_data_dict(os.path.join(base_dir, 'ratings.txt'))
+test = load_data_dict(os.path.join(base_dir, 'ratings_test.txt'))
 
 users = list()
 movies = list()
@@ -64,7 +67,7 @@ users = sorted(list(set(users)))
 movies = sorted(list(set(movies)))
 
 N = len(users)
-M = int(subprocess.Popen('wc -l movies.txt', stdout=subprocess.PIPE, shell=True).communicate()[0].split()[0])
+M = int(subprocess.Popen('wc -l %s/movies.txt'%(base_dir), stdout=subprocess.PIPE, shell=True).communicate()[0].split()[0])
 M = 1682
 
 mat = np.zeros((N,M))
@@ -95,43 +98,40 @@ for movie_id in xrange(M):
 	    pass
 
 
-
 #initialization
 U = np.zeros((N,d))
-V = np.zeros((M,d))
+V = np.zeros((d,M))
 
 mean = np.zeros(d)
 cov = np.power(sigma,2)*I
 for i in xrange(N):
     U[i,:] = np.random.multivariate_normal(mean, cov)
+
 for j in xrange(M):
-    V[j,:] = np.random.multivariate_normal(mean, cov)
+    V[:,j] = np.random.multivariate_normal(mean, cov)
 
 
-
-
-
+# user optimization
 for i in xrange(N):
-
     # compute V_i
-    V_i = 
-
+    V_i = V[:, user_movie_dict[i]].transpose()
     # compute m_u
     m_u = mat[i, user_movie_dict[i]]
-
     # compute u_MAP
-    u_MAP = np.dot(np.linalg.inv(lamb*np.power(sigma,2)*I + np.dot(V.transpose(), V)), np.dot(V.transpose, m_u))
+    u_MAP = np.dot(np.linalg.inv(lamb*np.power(sigma,2)*I + np.dot(V_i.transpose(), V_i)), np.dot(V_i.transpose(), m_u))
 
-
+# movie optimizaiton
 for j in xrange(M):
     # compute U
-    U_i = 
-
+    U_j = U[movie_user_dict[j], :].transpose()
     # compute m_v
     m_v = mat[movie_user_dict[j], j]
-
     # compute v_MAP
-    v_MAP = np.dot(np.linalg.inv(lamb*np.power(sigma,2)*I + np.dot(U.transpose(), U)), np.dot(U.transpose(), m_v))
+    v_MAP = np.dot(np.linalg.inv(lamb*np.power(sigma,2)*I + np.dot(U_j, U_j.transpose())), np.dot(U_j, m_v))
+
+
+
+
 
 
 
