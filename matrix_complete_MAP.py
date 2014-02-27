@@ -1,32 +1,11 @@
 import numpy as np
 import subprocess
 import os
+import matplotlib.pyplot as plt
 	
-# parameterization
-sigma = np.sqrt(0.25)
-lamb = 10
-
-d_list = [10, 20, 30]
-d = 10
-I = np.identity(d)
-
-N = 5
-ratings_range = np.array([1 + x for x in xrange(N)])
-
 def map_to_ratings_N(x, ratings_range):
     idx = (np.abs(ratings_range - x)).argmin()
     return ratings_range[idx]
-
-'''
-def load_data(filename):
-    X, y = [], [] 
-    with open(filename, 'rb') as f:
-	for line in f:
-	    row = line.split(',')
-	    X.append((int(row[0])-1, int(row[1])-1))
-	    y.append(int(row[2]))
-    return X, y
-'''
 
 def load_data_dict(filename):
     data = dict()
@@ -74,6 +53,12 @@ def movie_user_dictionary(data, N, M):
 		pass
     return movie_user_dict
 
+def dict_to_matrix(data_dict, N, M):
+    mat = np.zeros((N,M))
+    for user, movie in data_dict.keys():
+	mat[user, movie] = data_dict[(user, movie)]
+    return mat
+
 #initialization
 def initialize_factorization(N, M, d):
     U = np.zeros((N,d))
@@ -87,87 +72,104 @@ def initialize_factorization(N, M, d):
     return U, V
 
 # user optimization
-def update_user_MAP(U, V, N):
+def update_user_MAP(M_train, U, V, N):
     for i in xrange(N):
 	# compute V_i
 	V_i = V[:, user_movie_dict[i]].transpose()
 	# compute m_u
-	m_u = mat[i, user_movie_dict[i]]
+	m_u = M_train[i, user_movie_dict[i]]
 	# compute u_MAP
 	U[i,:] = np.dot(np.linalg.inv(lamb*np.power(sigma,2)*I + np.dot(V_i.transpose(), V_i)), np.dot(V_i.transpose(), m_u))
     return U
 
 # movie optimizaiton
-def update_movie_MAP(U, V, M):
+def update_movie_MAP(M_train, U, V, M):
     for j in xrange(M):
 	# compute U
 	U_j = U[movie_user_dict[j], :].transpose()
 	# compute m_v
-	m_v = mat[movie_user_dict[j], j]
+	m_v = M_train[movie_user_dict[j], j]
 	# compute v_MAP
 	V[:,j] = np.dot(np.linalg.inv(lamb*np.power(sigma,2)*I + np.dot(U_j, U_j.transpose())), np.dot(U_j, m_v))
     return V
-
-# coordinate ascent 
-def coordinate_ascent(N, M, d, N_iterations):
-    U, V = initialize_factorization(N, M, d)
-    for iter in xrange(N_iterations):
-	U = update_user_MAP(U, V, N)    
-	V = update_user_MAP(U, V, M)
-    return U, V
 
 def predict_ratings(U, V):
     M_pred = np.dot(U,V)      
     return M_pred      
 
-def RMSE(M_pred, M_test, ratings_range):  
+def compute_RMSE(M_pred, test, ratings_range):  
     MSE_sum = 0
-    N = len(M_test.keys())
-    for i, j in M_test.keys():
+    N = len(test.keys())
+    for i, j in test.keys():
 	y_pred = map_to_ratings_N(M_pred[i,j], ratings_range)
 	y = M_test[i,j]
 	MSE_sum += np.power(y - y_pred, 2)
     RMSE = np.sqrt(MSE_sum/float(N)) 
     return RMSE
 
+# coordinate ascent 
+def coordinate_ascent(M_train, test, N, M, d, N_iterations, ratings_range):
+    U, V = initialize_factorization(N, M, d)
+    rmse_list = list()
+    for iter in xrange(N_iterations):
+	U = update_user_MAP(M_train, U, V, N)    
+	V = update_movie_MAP(M_train, U, V, M)
+	M_pred = predict_ratings(U, V)
+	rmse = compute_RMSE(M_pred, test, ratings_range)
+	rmse_list.append(rmse)
+    return U, V, rmse_list
 
+def plot_RMSE(N_iterations, rmse):
+    X = [x+1 for x in xrange(N_iterations)]
+    plt.plot(X, rmse)
+    plt.xlabel('Iteration')
+    plt.ylabel('RMSE')
+    plt.show()
 
-
-
-
-
-
+   
 
 if __name__ == "__main__":
 
+# parameterization
+sigma = np.sqrt(0.25)
+lamb = 10
+d_list = [10, 20, 30]
+d = 10
+I = np.identity(d)
+N_ratings = 5
+ratings_range = np.array([1 + x for x in xrange(N)])
+
+
 base_dir = os.path.join(os.getcwd(), 'movie_ratings')
-
-'''
-X_train, y_train = load_data(base_dir + 'ratings.txt')
-X_test, y_test = load_data(base_dir + 'ratings_test.txt')
-'''
-
-M_train = load_data_dict(os.path.join(base_dir, 'ratings.txt'))
-M_test = load_data_dict(os.path.join(base_dir, 'ratings_test.txt'))
-
-
-mat = np.zeros((N,M))
-for user, movie in M_train.keys():
-    mat[user, movie] = M_train[(user, movie)]
-
+train = load_data_dict(os.path.join(base_dir, 'ratings.txt'))
+test = load_data_dict(os.path.join(base_dir, 'ratings_test.txt'))
+users, movies, N, M = metadata(train, base_dir)
 
 user_movie_dict = user_movie_dictionary(train, N, M)
 movie_user_dict = movie_user_dictionary(train, N, M)
 
-N_iterations = 100
+M_train = dict_to_matrix(train, N, M)
+M_test = dict_to_matrix(test, N, M)
 
+N_iterations = 100
+U,V, rmse = coordinate_ascent(M_train, test, N, M, d, N_iterations, ratings_range)
+plot_RMSE(N_iterations, rmse)
 
 ## GIBBS SAMPLING
 N_iterations = 100
 
-N_Gibbs = 500
+N_gibbs = 500
 burn_in = 250
 thinning = 25
+
+def gibbs(M_train, test, N, M, d, N_gibbs, burn_in, thinning):
+
+U, V = initialize_factorization(N, M, d)
+rmse_list = list()
+for iter in xrange(N_gibbs):
+    
+
+
 
 
 # initialize model parameters U, V
