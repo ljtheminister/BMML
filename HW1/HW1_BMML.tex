@@ -9,14 +9,15 @@
 \maketitle
 \section{Monty Hall Problem}
 
-After the host opens one of the doors, she should switch.  Assuming that she switches, she has a two-thirds chance of winning the prize versus just a one-third probability of taking the prize by staying with her original selection.  We illustrate the posterior probabilities below.  Without loss of generality, we can assume that she chooses Door 1, initially.
+After the host opens one of the doors, she should switch.  Assuming that she switches, she has a two-thirds chance of winning the prize versus just a one-third probability of taking the prize by staying with her original selection.  We illustrate the posterior probabilities below.  Without loss of generality, we can assume that she chooses Door 1, initially.  The host, then, will open either Door 2 or Door 3.  \\
+Assume she sticks to Door 1.  She wins when the prize is behind door 1; otherwise, she loses.  If she chooses to 
 
 \section{Dirichlet-Multinomial}
 
 Let $\pi = (\pi_1, ..., \pi_K)$ with $\pi_j \geq 0$, $\sum_j \pi_j = 1$.  $X_i ~ \text{Multinomial} (\pi)$ iid.
 
 \section{Normal-Inverse-Gamma}
-$x_i ~ \text{Normal}(\mu, \lambda^{-1})$ where $\mu | \lambda ~ \text{Normal}(0, a \lambda^{-1}$ and $\lambda ~ \text{Gamma}(b,c)$.  
+$x_i \sim \text{Normal}(\mu, \lambda^{-1})$ where $\mu | \lambda \sim \text{Normal}(0, a \lambda^{-1}$ and $\lambda \sim \text{Gamma}(b,c)$.  
 
 
 \section{MAP for multinomial logistic - MNIST data}

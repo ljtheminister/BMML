@@ -2,13 +2,17 @@ import numpy as np
 import pandas as pd
 import os
 import PIL
+from PIL import Image
+import matplotlib.pyplot as plt
 
-def read_MNISTdata(base_dir, type):
+
+
+def read_MNISTdata(base_dir, data_type):
     X = []
     Y = []
     digits = range(10)
     for digit in digits:
-	path = base_dir + type + str(digit) + '.csv'
+	path = base_dir + str(data_type) + str(digit) + '.csv'
 	digit_data = pd.read_csv(path, header=None)
 	p,n = digit_data.shape
 	idx = range(n)
@@ -16,16 +20,22 @@ def read_MNISTdata(base_dir, type):
 	    X.append(digit_data.ix[:,i].values)
 	    Y.append(digit)	
 	N = np.shape(X)[0]
-	X = np.append(np.ones((N,1)), X, axis=1)
-    return X, Y
+	X_full = np.append(np.ones((N,1)), X, axis=1)
+    return X_full, Y
 
 def get_PCA(base_dir):
     princomps = pd.read_csv(base_dir + 'Q.csv', header=None)
     return princomps
 
-def reconstruct_image(x_i, Q, y_i):
+def reconstruct_image(x_i, Q):
     X = np.dot(Q, x_i[1:]) 
     X_sq = np.reshape(X, (28,28))
+    img = Image.fromarray(X_sq)
+    return img
+
+def plot_image(img):
+    imgplot = plt.imshow(img)
+    plt.show()    
 
 def update_batch(w, X, y, N, K, alpha, lamb):
 
@@ -92,10 +102,15 @@ def gradient_stochastic(X, y, alpha, eps):
     while np.linalg.norm(max(np.abs(w_new - w) > eps)):
 	w = w_new
 	I = np.random.permutation(N) #keep shuffling
-	 for i in I:
-	w_new = update_stochastic(w, K, X[i], y[i], alpha)
+	for i in I:
+	    w_new = update_stochastic(w, K, X[i], y[i], alpha)
 
-def gradient_ascent(X, y, alpha, eps, algo_type=None)
+def gradient_mini(X, y, alpha, eps, mini_batch_size):
+    N, K = np.shape(X)
+    idx = range(N)
+
+
+def gradient_ascent(X, y, alpha, eps, algo_type=None, mini_batch_size=10)
     if algo_type == None:
 	raise ValueError('Invalid Arguments Given')	
     elif algo_type == 'batch':
@@ -103,8 +118,18 @@ def gradient_ascent(X, y, alpha, eps, algo_type=None)
     elif algo_type == 'stochastic':
 	return gradient_stochastic(X, y, alpha, eps)
     elif algo_type == 'mini':
-	return gradient_mini(X, y, alpha, eps)
+	return gradient_mini(X, y, alpha, eps, mini_batch_size)
     
+def predict(w, X):
+    N, K = np.shape(X)
+    pred_probs = np.zeros(K)    
+    denom_sum = 0
+    for i in range(N):
+	x_i = X[i]
+	for k in range(K):
+	    pred_probs[k] = np.exp(np.dot(x_i.transpose(), w))
+
+
 
 def confusion_matrix(w_opt, X, y):
     conf_mat = np.zeros((10,10))
@@ -112,12 +137,14 @@ def confusion_matrix(w_opt, X, y):
 
 def main():
     base_dir = '/Users/LJ/BMML/HW1/mnist_csv/'
-    X_train, y_train = readMNISTdata(base_dir, 'train')
-    X_test, y_test = readMNISTdata(base_dir, 'test')
+    X_train, y_train = read_MNISTdata(base_dir, 'train')
+    X_test, y_test = read_MNISTdata(base_dir, 'test')
     alpha = 1
     eps = 1e-2
 
     w = gradient(X_train, y_train, alpha, eps) 
     
-    pred_probs = np.dot(X_test.transpose(), w)
+    N,K = np.shape(X_test)
+    pred_probs = np.zeros(K)
 
+    
