@@ -1,15 +1,17 @@
 import numpy as np
 import pandas as pd
-from numpy.random import normal
+from numpy.random import multivariate_normal
 from numpy.random import gamma
 from numpy.linalg import pinv
+from scipy.linalg import pinv2
 from numpy import identity
 
 
 for i in [x+1 for x in xrange(3)]:
-    X = pd.read_csv('X_set%s.csv'%(str(i)), header=None)
-    y = pd.read_csv('y_set%s.csv'%(str(i)), header=None)
-    z = pd.read_csv('y_set%s.csv'%(str(i)), header=None)
+    X = np.loadtxt('X_set%s.csv'%(str(i)), delimiter=',')
+    y = np.loadtxt('y_set%s.csv'%(str(i)), delimiter=',')
+    z = np.loadtxt('y_set%s.csv'%(str(i)), delimiter=',')  
+
 
 '''
 X1 = pd.read_csv('X_set1.csv', header=None)
@@ -26,25 +28,31 @@ y3 = pd.read_csv('y_set3.csv', header=None)
 z3 = pd.read_csv('z_set3.csv', header=None)
 '''
 
-
+N, K = X.shape
 N_iter = 1000
 a0 = 1e-16
 b0 = 1e-16
 e0 = 1
 f0 = 1
 
-alpha = gamma(a0,b0**-1, (1,K))
+alpha = gamma(a0, b0**-1, (K,))
 lamb = gamma(e0, f0**-1)
 
-w = normal(0, (alpha**-1)*identity(K))
-
-
-N, K = X.shape
 for i in xrange(N_iter):
+    # q(w)
+    sigma = inv(lamb*X.T.dot(X) + alpha*(identity(K)))
+    mu = lamb*sigma.dot(X.T).dot(y)
+    w = multivariate_normal(mu, sigma)
+    # q(alpha)
+    a = a0 + .5
+    for k in xrange(K):
+	b_k = b0 + .5*w[k]**2
+	alpha[k] = gamma(a, b_k**-1)
 
-sigma = pinv(lamb*X.transpose()*X + alpha*identity(K))
-mu = lamb*sigma*X.transpose()*X*y
-w = normal(mu, sigma)
+    #q(lambda)
+    e = e0 + N/2.
+    f = f0 + .5*y.T.dot(y) - y.T.dot(X.dot(w)) + .5*(w.T.dot(X.T)).dot(X.dot(w))
+    lamb = gamma(e, f**-1)
 
 
 
