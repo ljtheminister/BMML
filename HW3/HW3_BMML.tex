@@ -1,0 +1,60 @@
+\documentclass[10pt]{article} % use larger type; default would be 10pt
+
+
+\usepackage[margin=1.0in]{geometry}
+\usepackage{amssymb, amsmath, parallel, mathtools, graphicx, array, pdfpages}
+\title{EECS E6892 Bayesian Models for Machine Learning\\ Homework 3}
+\author{John Min; jcm2199}
+
+\begin{document}
+\maketitle
+
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+
+
+
+\section{Variational Inference on Sparse Regression}
+
+\begin{enumerate}
+\item[\textbf{(a)}] Variational inference algorithm using factorization $q(w, \alpha_1, \ldots, \alpha_{d+1}, \lambda) = q(w)q(\lambda) \prod_{k=1}^{d+1} q(\alpha_k)$\\
+
+\noindent
+\begin{align*}
+\ln q(w) &= \E_q \Bigg[ \ln \bigg\{ p(y, w, \alpha, \lambda) \bigg\} \Bigg] + c \\
+	       &= \E_q \Bigg[\ln \bigg\{ p(y | w, \lambda) p (w | \alpha) \bigg\} \Bigg] + c \\
+	\displaystyle & = - \frac{\lambda}{2} \big(y - Xw \big)^\top \big(y - Xw \big) - \frac{1}{2} \sum_{k=1}^{d+1} \alpha_k w_k^2 + c \\
+		& = -\frac{\lambda}{2} \bigg[y^\top y - 2y^\top Xw + w^\top X^\top X w \bigg] - \frac{1}{2} \sum_{k=1}^{d+1} \alpha_k w_k^2 + c\\
+		& = -\frac{1}{2} w^\top \bigg[\lambda X^\top X + \alpha I \bigg] w - \lambda w^\top X^\top y + c \\
+		& = -\frac{1}{2} w^\top \Sigma^{-1} w - w^\top \Sigma^{-1} \mu + c 
+\end{align*}
+$q(w) \sim N(w|\mu, \Sigma)$
+where $ \displaystyle \mu = \lambda \cdot \Sigma X^\top y$, $\Sigma = \bigg(\lambda \cdot X^\top X + \alpha I \bigg)^{-1}$
+
+\begin{align*}
+\ln q(\alpha) &= \E_q \Bigg[ \ln p(w|\alpha) p(\alpha) \Bigg] \\
+		   &= \E_q \Bigg[ \ln \prod_{k=1}^{d+1} N(w_k| 0, \alpha_k^{-1} \dot Ga(\alpha_k | a_0, b_0) \Bigg]\\
+		   &= \frac{1}{2} \sum_{k=1}^{d+1} \ln \alpha_k - \frac{1}{2}  \sum_{k=1}^{d+1} \alpha_k w_k^2 + (a_0-1)  \sum_{k=1}^{d+1} \ln \alpha_k - b_0  \sum_{k=1}^{d+1} \alpha_k + c
+		   &= (a_0 - \frac{1}{2})  \sum_{k=1}^{d+1} ln \alpha_k -  \sum_{k=1}^{d+1} (\frac{1}{2} w_k^2 + b_0)
+\end{align*}
+
+$\displaystyle q(\alpha) =  \prod_{k=1}^{d+1} Ga(\alpha_k | a, b_k)$
+where $a = a_0 + \frac{1}{2}$, $b_k = b_0 + \frac{1}{2} w_k^2$.
+
+\begin{align*}
+\ln q(\lambda)    &= \E_q \Bigg[ \ln \bigg\{p(y|w,\lambda) p(\lambda) \bigg\} \Bigg] \\
+\displaystyle	&= \frac{1}{2} \sum_{n=1}^N \ln \lambda - \frac{\lambda}{2} \bigg[y^\top y - 2y^\top Xw + w^\top X^\top X w \bigg] + (e_0 - 1) \ln \lambda - f_0 \lambda \\
+			& = \bigg(e_0 + \frac{N}{2} - 1 \bigg) \ln \lambda - \bigg[\frac{1}{2} y^\top y - y^\top Xw + \frac{1}{2} w^\top X^\top X w + f_0 \bigg] \lambda
+\end{align*}
+
+$q(\lambda) \sim Ga(e,f)$ where 
+$e = e_0 + \frac{N}{2}$, $f = f_0 +\frac{1}{2} y^\top y - y^\top Xw + \frac{1}{2} w^\top X^\top X w$
+
+
+\item[\textbf{(b)}]
+
+
+\item[\textbf{(c)}]  
+\end{enumerate}
+\end{document}

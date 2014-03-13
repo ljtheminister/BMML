@@ -5,6 +5,13 @@ from numpy.random import gamma
 from numpy.linalg import pinv
 from numpy import identity
 
+
+for i in [x+1 for x in xrange(3)]:
+    X = pd.read_csv('X_set%s.csv'%(str(i)), header=None)
+    y = pd.read_csv('y_set%s.csv'%(str(i)), header=None)
+    z = pd.read_csv('y_set%s.csv'%(str(i)), header=None)
+
+'''
 X1 = pd.read_csv('X_set1.csv', header=None)
 y1 = pd.read_csv('y_set1.csv', header=None)
 z1 = pd.read_csv('z_set1.csv', header=None)
@@ -17,6 +24,8 @@ z2 = pd.read_csv('z_set2.csv', header=None)
 X3 = pd.read_csv('X_set3.csv', header=None)
 y3 = pd.read_csv('y_set3.csv', header=None)
 z3 = pd.read_csv('z_set3.csv', header=None)
+'''
+
 
 N_iter = 1000
 a0 = 1e-16
