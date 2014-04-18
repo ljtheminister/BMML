@@ -42,7 +42,30 @@ $$p(x) = \pi^{-d/2} \frac{\Gamma}{} \Bigg( \frac{}{} \Bigg )^{d/2}$$
 
 
 
-\section{EM for Gaussian mixture}
+\section{Expectation Maximization for Gaussian Mixture Models}
+
+\subsection{The EM algorithm}
+\begin{enumerate}
+	\item initialize $\mu_k$, covariances $\Sigma_k$, mixing coefficients $\pi_k$, and evaluate the initia value of the log-likelihood
+	\item \textbf{(E-step)}: evaluate responsibilities\\
+$\gamma(z_{nk}) \leftarrow \pi_k \cdot N(x_n | \mu_k, \Sigma_k) / \displaystyle \sum_{j=1}^K \pi_j N(x_n | \mu_j, \Sigma_j)$ \\
+		\item \textbf{(M-step)}: re-estimate parameters using current responsibilities\\
+	$\mu_k^{\text{new}} \leftarrow \frac{1}{N_k} \displaystyle \sum_{n=1}^N \gamma(z_{nk}) x_n$ \\
+$\Sigma_k^{\text{new}} \leftarrow \frac{1}{N_k} \displaystyle \sum_{n=1}^N \gamma(z_{nk}) \Big(x_n - \mu_k^\text{new}\Big)\Big(x_n - \mu_k^\text{new}\Big)^\top$ \\
+$ \pi_k^\text{new} \leftarrow \frac{N_k}{N}$ where $N_k = \displaystyle \sum_{n=1}^N \gamma(z_{nk})$
+
+\item Evaluate log-likelihood \\
+$\ln p(x | \mu, \Sigma, \pi) = \displaystyle \sum_{n=1}^N  \ln \Big\{ \sum_{k=1}^K \pi_k N(x_n | \mu_k, \Sigma_k \Big\} $
+
+\end{enumerate}
+
+\subsection{Plots of log-likelihood}
+\subsubsection{K=2}
+\subsubsection{K=4}
+\subsubsection{K=6}
+\subsubsection{K=8}
+\subsubsection{K=10}
+
 
 \section{Dirichlet Process Gaussian Mixture Model (D.P.G.M.M.)}
 \subsection{Normal-Wishart prior}
