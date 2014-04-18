@@ -24,7 +24,26 @@
 \maketitle
 
 
+\section{Normal-Wishart prior}
+
+\noindent
+The multivariate analog ofthe normal-gamma prior is the normal-Wishart prior. \\
+
+\noindent
+We are given observations $x_1, \ldots, x_n$ from a $d$-dimensional multivariate Gaussian with a Normal-Wishart prior on the mean and precision matrix:  $x_i \sim N(\mu, \Lambda^{-1}), \mu | \Lambda \sim N(m, (\frac{1}{a} \Lambda)^{-1}), \Lambda \sim Wishart(\nu, B).$  \\
+
+\subsection{Posterior $p(\mu, \Lambda | x_1, \ldots, x_N)$}
+
+\subsection{Marginal likelihood of a singular data point}
+For a single vector, $p(x) = \int_\Lambda \int_\mu p(x|\mu, \Lambda) p(\mu|\Lambda) p(\Lambda) \partial \mu \partial \Lambda.$ \\
+
+$$p(x) = \pi^{-d/2} \frac{\Gamma}{} \Bigg( \frac{}{} \Bigg )^{d/2}$$
 
 
 
+
+\section{EM for Gaussian mixture}
+
+\section{Dirichlet Process Gaussian Mixture Model (D.P.G.M.M.)}
+\subsection{Normal-Wishart prior}
 \end{document}
