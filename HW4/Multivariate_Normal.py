@@ -18,8 +18,8 @@ class Multivariate_Normal:
 	assert.self.k = sigma.shape[1]
 
     def evaluate_pdf(x, k, mu, sigma):
-		Z = (2*pi)**(-k/2.0)*det(sigma)**(0.5) #normalization term
-	    pdf = Z*exp(-0.5*(x-mu).T.dot(pinv(sigma)).dot(x-mu))
-		return pdf
+	Z = (2*pi)**(-k/2.0)*det(sigma)**(0.5) #normalization term
+	pdf = Z*exp(-0.5*(x-mu).T.dot(pinv(sigma)).dot(x-mu)) 
+	return pdf
 
 
