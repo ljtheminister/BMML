@@ -23,7 +23,7 @@
 \begin{document}
 \maketitle
 
-
+\newpage
 \section{Normal-Wishart prior}
 
 \noindent
@@ -32,16 +32,40 @@ The multivariate analog ofthe normal-gamma prior is the normal-Wishart prior. \\
 \noindent
 We are given observations $x_1, \ldots, x_n$ from a $d$-dimensional multivariate Gaussian with a Normal-Wishart prior on the mean and precision matrix:  $x_i \sim N(\mu, \Lambda^{-1}), \mu | \Lambda \sim N(m, (\frac{1}{a} \Lambda)^{-1}), \Lambda \sim Wishart(\nu, B).$  \\
 
+\subsection{Likelihood $p(D | \mu, \Lambda)$}
+\begin{align*}
+p(D | \mu, \Lambda) &= p(x_1, \ldots, x_N | \mu, \Lambda) \\
+					&= (2\pi)^{-nd/2} |\Lambda|^{n/2} \exp\Big\{ -\frac{1}{2} \displaystyle \sum_{i=1}^N (x_i - \mu)^\top \Lambda (x_i - \mu) \Big\}
+\end{align*}
+
+\subsection{Prior $p(\mu, \Lambda)$}
+\begin{align*}
+p(\mu, \Lambda) &= p(\mu | \Lambda) p(\Lambda) \\
+				&= N(\mu | m, (\frac{1}{a}\Lambda)^{-1}) \cdot \text{Wishart}(B,\nu) \\
+				&= (2a \pi)^{-d/2} \vert \Lambda \vert^{1/2} \exp \Big\{-\frac{1}{2a} (\mu-m)^\top \Lambda (\mu-m) \Big\} \Lambda^{(\nu-d-1)/2} \exp \Big\{-\frac{1}{2} \tr(B^{-1}\Lambda) \Big \}
+\end{align*}
+
 \subsection{Posterior $p(\mu, \Lambda | x_1, \ldots, x_N)$}
+\begin{align*}
+p(\mu, \Lambda | x_1, \ldots, x_N) &= \displaystyle \prod_{i=1}^N N(x_i | \mu, \Lambda^{-1}) N(\mu | m, (\frac{1}{a} \Lambda)^{-1}) \cdot \text{Wishart}(B, \nu) \\
+&= \text{const} \cdot \exp \bigg\{-\frac{1}{2} \Big[\displaystyle \sum_{i=1}^N \big(x_i \Lambda x_i\big) - 2n\bar{x}^\top \Lambda \mu + n \mu^\top \Lambda \mu + \frac{1}{a} \mu \Lambda \mu - \frac{2}{a} \mu^\top \Lambda \mu + \frac{1}{a} m^\top \Lambda m \Big] \bigg\} \cdot \exp\Big\{-\frac{1}{2} \tr(B^{-1}\Lambda)\Big\}
+&= \text{const} \cdot \exp \bigg\{-\frac{1}{2} \Big[\mu^\top (n+a^{-1})\Lambda\mu - 2\mu^\top (n+a^{-1}) \Lambda \Big[\frac{n\bar{x} + a^{-1}m}{n+a^{-1}} + \text{const} \bigg\} \\
+&= N(\mu_n, \Lambda_n) \cdot \text{Wishart}(B_n, \nu_n)
+\end{align*}
+where \mu_n = \frac{a^{-1}m + n\bar x}{a^{-1}+n}
+\Lambda_n = \Big[(a^{-1} + n) \Lambda \Big]^{-1}
 
 \subsection{Marginal likelihood of a singular data point}
 For a single vector, $p(x) = \int_\Lambda \int_\mu p(x|\mu, \Lambda) p(\mu|\Lambda) p(\Lambda) \partial \mu \partial \Lambda.$ \\
+
+\noindent
+We see that we can complete the square and integrate out a Normal-Wishart distribution leaving us with a normalization ratio.\\
 
 $$p(x) = \pi^{-d/2} \frac{\Gamma}{} \Bigg( \frac{}{} \Bigg )^{d/2}$$
 
 
 
-
+\newpage
 \section{Expectation Maximization for Gaussian Mixture Models}
 
 \subsection{The EM algorithm}
@@ -66,7 +90,7 @@ $\ln p(x | \mu, \Sigma, \pi) = \displaystyle \sum_{n=1}^N  \ln \Big\{ \sum_{k=1}
 \subsubsection{K=8}
 \subsubsection{K=10}
 
-
+\newpage
 \section{Dirichlet Process Gaussian Mixture Model (D.P.G.M.M.)}
 \subsection{Normal-Wishart prior}
 \end{document}
