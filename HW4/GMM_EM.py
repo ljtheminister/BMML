@@ -9,14 +9,7 @@ from numpy import prod
 from numpy import diag
 from numpy.linalg import inv
 from scipy.stats import multivariate_normal
-
-'''
-pi = np.ones(K)/float(K)
-GMM = GMM_EM(X,K, 
-
-
-'''
-
+from Multivariate_Normal import Multivariate_Normal
 
 class GMM_EM:
     def __init__(self, X, K, pi, max_iter):
@@ -85,13 +78,6 @@ class GMM_EM:
 		self.assignments[i,k] = responsibility
 		row_sum += responsibility
 	    self.assignments[i,:] /= float(row_sum)
-
-
-    def multivariate_normal(self, d, mean, cov, x):
-	detDiagCovMatrix = sqrt(prod(diag(cov)))
-	frac = (2*np.pi)**(-d/2.0)*(1/detDiagCovMatrix)
-	return frac*exp(-.5*(x-mean).transpose().dot(inv(cov)).dot(x-mean))
-	    
 
 
 
