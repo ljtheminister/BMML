@@ -1,0 +1,107 @@
+\documentclass{beamer}
+
+\usepackage{graphicx}
+\DeclareGraphicsExtensions{.pdf, .png, .jpg}
+
+\begin{document}
+\title{Building a Radio Recommendation Engine}
+\author{John Min}
+
+\begin{frame}
+	\begin{center}
+		\includegraphics[scale=0.3]{saavn}
+	\end{center}
+	\titlepage
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Approaches to recommendation}
+	\begin{enumerate}
+		\item Content-based \\
+
+			\begin{itemize}
+				\item Mel-frequency cepstral coefficients (MFCC) feature extraction \\
+			\end{itemize}	
+
+		\item Dyadic data analysis
+			\begin{itemize}		
+				\item Latent factor models:  (Bayesian) PMF
+				\item Mixed membership models: Latent Dirichlet Allocation (LDA)
+				\item M$^3$F = BPMF + LDA
+			\end{itemize}		
+	\end{enumerate}
+\end{frame}
+
+
+
+\begin{frame}
+	\frametitle{Mixed Membership Matrix Factorization (M$^3$F)}
+	
+	\begin{itemize}
+		\item $K^U$: the number of user topics
+		\item $K^M$: the number of item topics		
+		\item $\Lambda^U \sim \text{Wishart}(W_0, \nu_0), \Lambda^M \sim \text{Wishart}(W_0, \nu_0)$
+		\item $\mu^U \sim N(\mu_0, (\lambda_0 \Lambda^U)^{-1}), \mu^M \sim N(\mu_0, (\lambda_0 \Lambda^U)^{-1})$
+
+		\item For each user $i \in \{1, \ldots, N\}$: \\
+		\begin{itemize}		
+			\item $u_i \sim N(\mu^U, (\lambda^U)^{-1})$
+			\item $\theta_i^U \sim \text{Dir}(\alpha/K^U)$
+		\end{itemize}	
+
+		\item For each item $j \in \{1, \ldots, M\}$:
+		\begin{itemize}
+			\item $v_i \sim N(\mu^V, (\lambda^V)^{-1}$
+			\item $\theta_i^V \sim \text{Dir}(\alpha/K^V)$	
+		\end{itemize}	
+		
+		\item For each rating $r_ij$:
+		\begin{itemize}
+			\item $z_{ij}^U \sim \text{Multi}(1, \theta_i^U), z_{ij}^V \sim \text{Multi}(1, \theta_j^V)$
+			\item $r_ij \sim N(\beta_{ij}^{kl} + u_i \cdot v_j, \sigma^2)$
+		\end{itemize}			
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{M$^3$F-TIB (Topic-Indexed Bias)}
+	\begin{itemize}
+		\item $\beta_{ij}^{kl} = \chi_0 + c_i^k + d_j^l$
+		
+		\begin{itemize}
+			\item $\chi_0$ is a fixed global bias
+			\item $c_i^k$'s and $d_j^l$'s are drawn from Gaussian priors
+		\end{itemize}		
+		
+		\item "Napoleon Dynamite" effect	
+	
+		\item each user and item can choose a different topic and thus, a different bias for each rating (such as in the case that multiple users share a single account)
+	
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{Gibbs sampler (simplified)}
+	\begin{itemize}
+		\item sample hyperparameters, $\{(\mu_U, \Lambda_U), (\mu_M, \Lambda_M)\}$
+		\item sample topics, $(z_{ij}^U, z_{ij}^M)$
+		\item sample user parameters $(\theta_i^U, u_i, \{c_i^k\}_{k=1}^{K^U})$
+		\item sample item parameters $(\theta_j^V, v_i, \{d_j^l\}_{k=1}^{K^V})$
+
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Coming to theaters (or online radios) near you}
+	
+	\begin{itemize}	
+		\item get results!		
+		\item compare content-based approach with matrix factorization	
+		\item integrate the MFCC feature vector with MF algorithms
+	\end{itemize}
+\end{frame}
+
+
+\end{document}
