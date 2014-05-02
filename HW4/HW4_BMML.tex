@@ -32,6 +32,7 @@ The multivariate analog ofthe normal-gamma prior is the normal-Wishart prior. \\
 \noindent
 We are given observations $x_1, \ldots, x_n$ from a $d$-dimensional multivariate Gaussian with a Normal-Wishart prior on the mean and precision matrix:  $x_i \sim N(\mu, \Lambda^{-1}), \mu | \Lambda \sim N(m, (\frac{1}{a} \Lambda)^{-1}), \Lambda \sim Wishart(\nu, B).$  \\
 
+<<<<<<< HEAD
 \subsection{Likelihood $p(D | \mu, \Lambda)$}
 \begin{align*}
 p(D | \mu, \Lambda) &= p(x_1, \ldots, x_N | \mu, \Lambda) \\
@@ -55,11 +56,29 @@ p(\mu, \Lambda | x_1, \ldots, x_N) &= \displaystyle \prod_{i=1}^N N(x_i | \mu, \
 where \mu_n = \frac{a^{-1}m + n\bar x}{a^{-1}+n}
 \Lambda_n = \Big[(a^{-1} + n) \Lambda \Big]^{-1}
 
+\subsection{Posterior $p(\mu, \Lambda | x_1, \ldots, x_n)$}
+
+\begin{align*}
+p(\mu, \Lambda | x_1, \ldots, x_N) &= \\
+& \sim N \Big(\mu \; \Bigr | \; \frac{an\bar x + m}{an+1}, \big[(n+\frac{1}{a})\Lambda \big]^{-1} \Big) \cdot W(B_n, \nu_n) \\
+& \sim NW(\mu_n, \Lambda_n, B_n, \nu_n)
+\end{align*}
+where $\mu_n = \frac{an \bar x + m}{an+1}$, $\Lambda_n = \big[(n+\frac{1}{a})\Gamma\big]^{-1}$, $B_n = \Big[ B^{-1} + \displaystyle \sum_i^N (x_i - \bar x) (x_i - \bar x)^\top + \frac{n}{an+1} (\bar x - m)(\bar x - m)^\top \Big]^{-1}$, $\nu_n = \nu + n$.
+
+
+
+
+
 \subsection{Marginal likelihood of a singular data point}
 For a single vector, $p(x) = \int_\Lambda \int_\mu p(x|\mu, \Lambda) p(\mu|\Lambda) p(\Lambda) \partial \mu \partial \Lambda.$ \\
 
 \noindent
+<<<<<<< HEAD
 We see that we can complete the square and integrate out a Normal-Wishart distribution leaving us with a normalization ratio.\\
+
+Given this integral, we can integrate out a Normal-Wishart distribution and thus, we are left with a normalization ratio. \\
+
+$$p(x) = \pi^{-d/2} \frac{\Gamma}{} \Bigg( \frac{}{} \Bigg )^{d/2}$$
 
 $$p(x) = \pi^{-d/2} \frac{\Gamma}{} \Bigg( \frac{}{} \Bigg )^{d/2}$$
 
