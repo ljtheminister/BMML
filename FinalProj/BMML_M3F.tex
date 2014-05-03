@@ -1,17 +1,114 @@
 \documentclass{article}
 
 \author{John Min}
+\title{\textbf{EECS 6892 Bayesian models for machine learning \\  Building a radio recommendation engine with Mixed Membership Matrix Factorization}}
+
+
+\usepackage[margin=1.0in]{geometry}
+\usepackage{amssymb, amsmath, parallel, mathtools, graphicx, array, pdfpages}\usepackage[T1]{fontenc}
 
 \begin{document}
+\maketitle
+
+\section*{Abstract}
+
+\pagebreak
 
 \section{Introduction}
+In building a radio recommendation engine, there are two approaches to generating content recommendations.  The first is content-based; the other is to analyze the dyadic data in a collaborative filtering (matrix completion) setting. The dyads, i.e. the ordered pairs of object, in this context are the users and songs.  In the content-based context, the high-level idea is to map each song into the same feature space, for example, by computing Mel-frequency cepstral coefficients and representing each song as a $k$ dimensional vector. In the collaborative filtering environment, we observe $N$ users, $M$ items (songs), and data set $\mathcal{D} = \{(u_i, v_j, r_ij)\}$ for $i=1, \ldots, N$ and $j=1, \ldots, M$.
 
 
-\section{Mixed Membership Matrix Factorization}
-The Mixed Membership Matrix Factorization (M$^3$F) framework
+\section{Content-based approach}
+\subsection{MFCC feature extraction}
 
 
-$\left(\mathbf{V}^{-1} + \sum_{i=1}^n (\mathbf{x_i} - \boldsymbol\mu) (\mathbf{x_i} - \boldsymbol\mu)^T\right)^{-1}$
+
+
+\section{Dyadic data analysis}
+
+Two classes of dyadic data analysis algorithms are latent factor models such as (Bayesian) Probabilistic Matrix Factorization and mixed membership models such as Latent Dirichlet Allocation (LDA).\\
+
+\noindent
+Matrix factorization represents each user $u$ and each item $v$ as vectors of latent features, $u_i, v_j \in \mathcal{R}^d$, respectively, where $d$ is relatively small. A \emph{static rating} is generated for a user-item pair by adding Gaussian noise to the inner product of the latent factor vectors, $r_{ij} = u_i \cdot v_j$. 
+\footnote{This rating is called a static rating because the latent factor rating mechanism does not model the context in which a rating is given and does not model to exhibit different moods in dyadic interactions. This can be particularly useful in the case of Netflix, which allows multiple users to share a single account.}
+
+
+
+
+\subsection{Mixed Membership Matrix Factorization}
+The Mixed Membership Matrix Factorization (M$^3$F) framework integrates discrete mixed membership modeling and continuous latent factor modeling for probabilistic dyadic data prediction.
+
+
+
+
+
+ \begin{itemize}
+                \item $K^U$: the number of user topics
+                \item $K^M$: the number of item topics
+                \item $\Lambda^U \sim \text{Wishart}(W_0, \nu_0), \Lambda^M \sim \text{Wishart}(W_0, \nu_0)$
+                \item $\mu^U \sim N(\mu_0, (\lambda_0 \Lambda^U)^{-1}), \mu^M \sim N(\mu_0, (\lambda_0 \Lambda^U)^{-1})$
+
+                \item For each user $i \in \{1, \ldots, N\}$: \\
+                \begin{itemize}
+                        \item $u_i \sim N(\mu^U, (\lambda^U)^{-1})$
+                        \item $\theta_i^U \sim \text{Dir}(\alpha/K^U)$
+                \end{itemize}
+
+                \item For each item $j \in \{1, \ldots, M\}$:
+                \begin{itemize}
+                        \item $v_i \sim N(\mu^V, (\lambda^V)^{-1})$
+                        \item $\theta_i^V \sim \text{Dir}(\alpha/K^V)$
+                \end{itemize}
+
+                \item For each rating $r_ij$:
+                \begin{itemize}
+                        \item $z_{ij}^U \sim \text{Multi}(1, \theta_i^U), z_{ij}^V \sim \text{Multi}(1, \\
+theta_j^V)$
+                        \item $r_ij \sim N(\beta_{ij}^{kl} + u_i \cdot v_j, \sigma^2)$
+                \end{itemize}
+        \end{itemize}
+
+
+\subsubsection{Gibbs sampler}
+
+\begin{itemize}
+
+\item $\Lambda^U \sim \text{Wishart}$
+$\left(\mathbf{W_0}^{-1} + \sum_{i=1}^N (\mathbf{u_i} - \mathbf{\bar u}) (\mathbf{u_i} - \mathbf{\bar u})^T\right)^{-1} + \frac{\lambda_0}{\lambda_0 + N}(\mu_0 - \bar u)(\mu_0 - \bar u)^\top )^{-1}, \nu_0 + N) $
+
+\item $\Lambda^M \sim \text{Wishart}$
+$\left(\mathbf{W_0}^{-1} + \sum_{j=1}^M (\mathbf{v_j} - \mathbf{\bar v}) (\mathbf{v_j} - \mathbf{\bar v})^T\right)^{-1} + \frac{\lambda_0}{\lambda_0 + M}(\mu_0 - \bar v)(\mu_0 - \bar v)^\top )^{-1}, \nu_0 + M) $
+
+\item $\mu^U \sim N \Big( \frac{\lambda_0 \mu_0 + \sum_{i=1}^N u_i}{\lambda_0 + N}, ((\lambda_0 + N) \Lambda^U)^{-1} \Big)$ \\
+
+\item $\mu^V \sim N \Big( \frac{\lambda_0 \mu_0 + \sum_{j=1}^M v_j}{\lambda_0 + M}, ((\lambda_0 + M) \Lambda^V)^{-1} \Big)$ \\
+
+\item For each user, $\{u_i\}_{i=1}^N$ and $k \in \{1, \ldots, K^V\}, \\
+    c_i^u \sim N\Bigg(\frac{ \frac{c_0}{\sigma_0^2} + \sum_{j \in V_u} \frac{1}{\sigma^2} z_{ijk}^V(r_{ij} - \chi_0 - d_j^{z_{ij}^U} - u_i \cdot v_j)}{\frac{1}{\sigma_0^2} + \sum_{j \in V_u} \frac{1}{\sigma^2} z_{ijk}^V}, [\frac{1}{\sigma_0^2} + \sum_{j \in V_u} \frac{1}{\sigma^2} z_{ijk}^V]^{-1}    \Bigg) $
+
+
+\item For each item, $\{v_j\}_{j=1}^M$ and $k \in \{1,\ldots, K^U\}, \\
+    d_j^i | rest \sim N\Bigg(          
+\frac{\frac{d_0}{\sigma_0^2} + \sum_{u: j \in V_u} \frac{1}{\sigma^2} z_{ijk}^U(r_{ij} - \chi_0 - c_i^{z_{ij}^V} - u_i \cdot v_j)}{\frac{1}{\sigma_0^2} + \sum_{u: j \in V_u} \frac{1}{\sigma^2} z_{ijk}^U}
+, [\frac{1}{\sigma_0^2} + \sum_{u: j \in V_u} \frac{1}{\sigma^2} z_{ijk}^U]^{-1} \Bigg) $
+
+
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \end{document}
 
