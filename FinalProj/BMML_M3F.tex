@@ -6,41 +6,29 @@
 
 \usepackage[margin=1.0in]{geometry}
 \usepackage{amssymb, amsmath, parallel, mathtools, graphicx, array, pdfpages}\usepackage[T1]{fontenc}
+\usepackage[scaled]{beramono}
+\usepackage{listings}
+
 
 \begin{document}
-\maketitle
+\date{May 5, 2014}
 
-\section*{Abstract}
+\maketitle
 
 \pagebreak
 
 \section{Introduction}
-In building a radio recommendation engine, there are two approaches to generating content recommendations.  The first is content-based; the other is to analyze the dyadic data in a collaborative filtering (matrix completion) setting. The dyads, i.e. the ordered pairs of object, in this context are the users and songs.  In the content-based context, the high-level idea is to map each song into the same feature space, for example, by computing Mel-frequency cepstral coefficients and representing each song as a $k$ dimensional vector. In the collaborative filtering environment, we observe $N$ users, $M$ items (songs), and data set $\mathcal{D} = \{(u_i, v_j, r_ij)\}$ for $i=1, \ldots, N$ and $j=1, \ldots, M$.
+In building a radio recommendation engine, there are two approaches to generating content recommendations.  The first is content-based; the other is to analyze the dyadic data in a collaborative filtering (matrix completion) setting. The dyads, i.e. the ordered pairs of object, in this context are the users and songs.  In the content-based context, the high-level idea is to map each song into the same feature space, for example, by computing Mel-frequency cepstral coefficients and representing each song as a $k$ dimensional vector. In the collaborative filtering environment, we observe $N$ users, $M$ items (songs), and data set $\mathcal{D} = \{(u_i, v_j, r_ij)\}$ for $i=1, \ldots, N$ and $j=1, \ldots, M$. \\
 
-
-\section{Content-based approach}
-\subsection{MFCC feature extraction}
-
-
-
-
-\section{Dyadic data analysis}
-
+\noindent
 Two classes of dyadic data analysis algorithms are latent factor models such as (Bayesian) Probabilistic Matrix Factorization and mixed membership models such as Latent Dirichlet Allocation (LDA).\\
 
 \noindent
-Matrix factorization represents each user $u$ and each item $v$ as vectors of latent features, $u_i, v_j \in \mathcal{R}^d$, respectively, where $d$ is relatively small. A \emph{static rating} is generated for a user-item pair by adding Gaussian noise to the inner product of the latent factor vectors, $r_{ij} = u_i \cdot v_j$. 
-\footnote{This rating is called a static rating because the latent factor rating mechanism does not model the context in which a rating is given and does not model to exhibit different moods in dyadic interactions. This can be particularly useful in the case of Netflix, which allows multiple users to share a single account.}
+Matrix factorization represents each user $u$ and each item $v$ as vectors of latent features, $u_i, v_j \in \mathcal{R}^d$, respectively, where $d$ is relatively small. A \emph{static rating} is generated for a user-item pair by adding Gaussian noise to the inner product of the latent factor vectors, $r_{ij} = u_i \cdot v_j$.\footnote{This rating is called a static rating because the latent factor rating mechanism does not model the context in which a rating is given and does not model to exhibit different moods in dyadic interactions. This can be particularly useful in the case of Netflix, which allows multiple users to share a single account.}
 
 
-
-
-\subsection{Mixed Membership Matrix Factorization}
-The Mixed Membership Matrix Factorization (M$^3$F) framework integrates discrete mixed membership modeling and continuous latent factor modeling for probabilistic dyadic data prediction.
-
-
-
-
+\section{Mixed Membership Matrix Factorization}
+The Mixed Membership Matrix Factorization (M$^3$F) framework integrates discrete mixed membership modeling and continuous latent factor modeling for probabilistic dyadic data prediction.  The following is the generative process
 
  \begin{itemize}
                 \item $K^U$: the number of user topics
@@ -48,7 +36,7 @@ The Mixed Membership Matrix Factorization (M$^3$F) framework integrates discrete
                 \item $\Lambda^U \sim \text{Wishart}(W_0, \nu_0), \Lambda^M \sim \text{Wishart}(W_0, \nu_0)$
                 \item $\mu^U \sim N(\mu_0, (\lambda_0 \Lambda^U)^{-1}), \mu^M \sim N(\mu_0, (\lambda_0 \Lambda^U)^{-1})$
 
-                \item For each user $i \in \{1, \ldots, N\}$: \\
+                \item For each user $i \in \{1, \ldots, N\}$:
                 \begin{itemize}
                         \item $u_i \sim N(\mu^U, (\lambda^U)^{-1})$
                         \item $\theta_i^U \sim \text{Dir}(\alpha/K^U)$
@@ -62,53 +50,111 @@ The Mixed Membership Matrix Factorization (M$^3$F) framework integrates discrete
 
                 \item For each rating $r_ij$:
                 \begin{itemize}
-                        \item $z_{ij}^U \sim \text{Multi}(1, \theta_i^U), z_{ij}^V \sim \text{Multi}(1, \\
-theta_j^V)$
-                        \item $r_ij \sim N(\beta_{ij}^{kl} + u_i \cdot v_j, \sigma^2)$
+                        \item $z_{ij}^U \sim \text{Multi}(1, \theta_i^U), z_{ij}^V \sim \text{Multi}(1, \theta_j^V)$
+                        \item $r_{ij} \sim N(\beta_{ij}^{kl} + u_i \cdot v_j, \sigma^2)$
                 \end{itemize}
         \end{itemize}
 
 
-\subsubsection{Gibbs sampler}
+\subsection{Gibbs sampler}
 
 \begin{itemize}
 
-\item $\Lambda^U \sim \text{Wishart}$
-$\left(\mathbf{W_0}^{-1} + \sum_{i=1}^N (\mathbf{u_i} - \mathbf{\bar u}) (\mathbf{u_i} - \mathbf{\bar u})^T\right)^{-1} + \frac{\lambda_0}{\lambda_0 + N}(\mu_0 - \bar u)(\mu_0 - \bar u)^\top )^{-1}, \nu_0 + N) $
+\item $\Lambda^U \sim \text{Wishart} \Bigg($
+$\left(\mathbf{W_0}^{-1} + \sum_{i=1}^N (\mathbf{u_i} - \mathbf{\bar u}) (\mathbf{u_i} - \mathbf{\bar u})^T + \frac{\lambda_0}{\lambda_0 + N}(\mu_0 - \bar u)(\mu_0 - \bar u)^\top \right)^{-1}, \nu_0 + N \Bigg) $
 
-\item $\Lambda^M \sim \text{Wishart}$
-$\left(\mathbf{W_0}^{-1} + \sum_{j=1}^M (\mathbf{v_j} - \mathbf{\bar v}) (\mathbf{v_j} - \mathbf{\bar v})^T\right)^{-1} + \frac{\lambda_0}{\lambda_0 + M}(\mu_0 - \bar v)(\mu_0 - \bar v)^\top )^{-1}, \nu_0 + M) $
+\item $\Lambda^M \sim \text{Wishart} \Bigg($
+$\left(\mathbf{W_0}^{-1} + \sum_{j=1}^M (\mathbf{v_j} - \mathbf{\bar v}) (\mathbf{v_j} - \mathbf{\bar v})^T + \frac{\lambda_0}{\lambda_0 + M}(\mu_0 - \bar v)(\mu_0 - \bar v)^\top \right)^{-1}, \nu_0 + M \Bigg) $
 
 \item $\mu^U \sim N \Big( \frac{\lambda_0 \mu_0 + \sum_{i=1}^N u_i}{\lambda_0 + N}, ((\lambda_0 + N) \Lambda^U)^{-1} \Big)$ \\
 
 \item $\mu^V \sim N \Big( \frac{\lambda_0 \mu_0 + \sum_{j=1}^M v_j}{\lambda_0 + M}, ((\lambda_0 + M) \Lambda^V)^{-1} \Big)$ \\
 
-\item For each user, $\{u_i\}_{i=1}^N$ and $k \in \{1, \ldots, K^V\}, \\
-    c_i^u \sim N\Bigg(\frac{ \frac{c_0}{\sigma_0^2} + \sum_{j \in V_u} \frac{1}{\sigma^2} z_{ijk}^V(r_{ij} - \chi_0 - d_j^{z_{ij}^U} - u_i \cdot v_j)}{\frac{1}{\sigma_0^2} + \sum_{j \in V_u} \frac{1}{\sigma^2} z_{ijk}^V}, [\frac{1}{\sigma_0^2} + \sum_{j \in V_u} \frac{1}{\sigma^2} z_{ijk}^V]^{-1}    \Bigg) $
-
-
-\item For each item, $\{v_j\}_{j=1}^M$ and $k \in \{1,\ldots, K^U\}, \\
-    d_j^i | rest \sim N\Bigg(          
+\item For each user, $\{u_i\}_{i=1}^N$ and $k \in \{1, \ldots, K^U\}, \\$
+    $$c_i^u | rest \sim N\Bigg(\frac{ \frac{c_0}{\sigma_0^2} + \sum_{j \in V_u} \frac{1}{\sigma^2} z_{ijk}^V(r_{ij} - \chi_0 - d_j^{z_{ij}^U} - u_i \cdot v_j)}{\frac{1}{\sigma_0^2} + \sum_{j \in V_u} \frac{1}{\sigma^2} z_{ijk}^V}, \frac{1}{\frac{1}{\sigma_0^2} + \sum_{j \in V_u} \frac{1}{\sigma^2} z_{ijk}^V}    \Bigg) $$
+\item For each item, $\{v_j\}_{j=1}^M$ and $k \in \{1,\ldots, K^V\}, \\$
+    
+    \indent
+    $$d_j^i | rest \sim N\Bigg(          
 \frac{\frac{d_0}{\sigma_0^2} + \sum_{u: j \in V_u} \frac{1}{\sigma^2} z_{ijk}^U(r_{ij} - \chi_0 - c_i^{z_{ij}^V} - u_i \cdot v_j)}{\frac{1}{\sigma_0^2} + \sum_{u: j \in V_u} \frac{1}{\sigma^2} z_{ijk}^U}
-, [\frac{1}{\sigma_0^2} + \sum_{u: j \in V_u} \frac{1}{\sigma^2} z_{ijk}^U]^{-1} \Bigg) $
+, \frac{1}{\frac{1}{\sigma_0^2} + \sum_{j \in V_u} \frac{1}{\sigma^2} z_{ijk}^V}    \Bigg) $$
+\item For each user, $\{u_i\}_{i=1}^N$ and $k \in \{1, \ldots, K^V\}, \\$
+    $$u_i | rest \sim N \Bigg(({\Lambda_i^U}^*)^{-1} (\Lambda^U \mu^U + \sum_{j \in V_u} \frac{1}{\sigma^2} v_j(r_{ij} - \chi_0 - c_i^{z_{ij}^U} - d_j^{z_{ij}^U}), ({\Lambda_i^U}^*)^{-1} \Bigg)$$ \\
 
+where ${\Lambda_i^U}^* = (\Lambda_U + \sum_{j \in V_u} \frac{1}{\sigma_2} v_j v_j^\top)$
 
+\item For each item, $\{v_j\}_{j=1}^M$ and $k \in \{1,\ldots, K^U\}, \\$
+    $$v_j | rest \sim N \Bigg(({\Lambda_j^V}^*)^{-1} (\Lambda^V \mu^V + \sum_{u: j \in V_u} \frac{1}{\sigma^2} u_i(r_{ij} - \chi_0 - c_i^{z_{ij}^V} - d_j^{z_{ij}^V}), ({\Lambda_j^V}^*)^{-1} \Bigg)$$
+
+where ${\Lambda_j^V}^* = (\Lambda_V + \sum_{u: j \in V_u} \frac{1}{\sigma_2} u_i u_i^\top)$
+
+\item For each user, $\{u_i\}_{i=1}^N$, \\
+    $$\theta_i^U | rest \sim Dir(\alpha/K^U + \sum_{j \in V_u} z_{ij}^U) $$
+\item For each item, $\{v_j\}_{j=1}^M$, \\
+    $$\theta_i^U | rest \sim Dir(\alpha/K^V + \sum_{u: j \in V_u} z_{ij}^V)$$
+\item For each user, $\{u_i\}_{i=1}^N$, and $j \in V_u$, \\
+    $$z_{ij}^U | rest \sim \text{Multi}(1, {\theta_{ij}^U}^*) 
+    \text{ where } {\theta_{ij}^U}^* \propto \theta_{ij}^U \exp\Bigg(-\frac{(r_{ij} - \chi_0 - c_i^{z_{ij}^M} - d_j^i - u_i \cdot b_j)^2}{2 \sigma^2} \Bigg)$$
+
+\item For each item, $\{v_j\}_{j=1}^M$, \\
+    $$z_{ij}^V | rest \sim \text{Multi}(1, {\theta_{ij}^V}^*)
+    \text{ where }{\theta_{ijk}^U}^* \propto \theta_{ij}^U \exp\Bigg(-\frac{(r_{ij} - \chi_0 - c_i^k - d_j^{z_{ij}^U} - u_i \cdot b_j)^2}{2 \sigma^2} \Bigg)$$
 \end{itemize}
 
+\subsection{Topic-Indexed Bias}
+The Topic-Indexed Bias (TIB) model assumes that the contextual bias for a particular user and item pairing decomposes into a latent user bias and latent item bias. The user bias is determined by the interaction-specific topic selected by the item. Similarly, the item bias is influenced by the user's selected topic. The contextual bias for a particular user-iterm iteraction is found by summing the two latent biases and a fixed global bias: $\beta_{ij}^{k_u k_v} = \chi_0 + c_u^{k_u} + d_j^{k_v}$.
+
+\newpage
+\section{Data}
+While I had originally planned to use playcounts of a (user, song) pair, upon examining the data set, I discovered that about $85\%$ of streams opened on the site come from the Weekly Top 15, a curated playlist that reveals 15 different songs each week. This demonstrates that Saavn is a music streaming site that provides not only content but also and perhaps more importantly, curated playlists. Users are not exhibiting their music preferences via the site; rather, the site is molding the user's tastes.  Thus, playcount seemed to be a bad proxy for preference -- the data set was nearly singular.
+Thus, instead of using total playcounts, I extracted counts of add-to-queue events which involve a user adding a song to the current play queue that is being listened to or to a saved playlist that can be accessed at a later time.  \\
+
+\noindent
+While the full data set boasts over 12 million users and close to 1 million songs across a multitude of languages including Hindi, Telegu, English, and others, I choose to subsample from the Hindi language subset of the full data which accounts for 103,921 users and 17,346 songs.  Unfortunately, because the add-to-queue data pipeline is a relatively new and unsued feature, there are only 459,396 observations.  Out of the existing observations where the data density is .00025, over half the observations of counts are just 1 and while the counts range from 1 to 315, the mean of the add-to-queue counts is just 1.33 and the variance is 2.34. Other events need to be added to improve counts to better exhibit user preference for songs.
+
+\section{Experiment}
+With $W_0$ as the identity matrix, $\nu_0$ equal to the number of static matrix factors, D, $\mu_0$ the D-dimensional zero vector, $\chi_0 = 1.33$, the mean rating in the data set, ($ c_0, d_0, \alpha ) = (0, 0, 1000) $, $( \lambda_0, \sigma_0^2, \sigma^2) = (10, 5, 2.5)$. With no burn-in period, the Gibbs sampler is run for 100 iterations on D = 10 and D = 20, with the D = 20 performing slightly better than that of the D = 10 model.  RMSE$_{10}$ is 5.61 whereas the RMSE$_{20}$ is 3.80.  These results are currently misleading as virtually all of the RMSE comes from just a few observations where the add-to-queue count is quite large and more work needs to be done in terms of trying out parameter initializations. \\
 
 
+\section{Future Work}
+\noindent
+Mackey, Weiss, and Jordan [2010] point out that if $K^U and K^M$ are both set to zero, the M$^3$F framework is equivalent to Bayesian Probabilistic Matrix Factorization (Salakhutdinov \& Mnih, 2008).  While I wrote code that performs Probabilistic Matrix Factorization *Salakhutdinov \& Mnih, 2006) as in , I ran out of time to implement one with hyperparameters as to verify that the M3F code is behaving as it should. There are many next steps after this initial implementation of this model beyond the parameterization.  Better data that more completely represents user preference will improve this model's ability to capture the individual dynamics with respect to the user and item.  More thought needs to go into the topic-indexed bias model as there is more information about user behavior than just the counts such as location of the user, medium of usage such as web versus mobile, etc. Finally, this matrix completion algorithm tool should be compared and additionally, integrated with a content-based approach to clustering similar songs.
 
 
+\section{References}
+Mackey, L., Weiss, D., and Jordan, M.I. Mixed Membership Matrix Factorization. ICML 2010. \\
+
+\noindent
+Salakhutdinov, R. and Mnih, A. Bayesian Probabilistic Matrix Factorization using Markov Chain Monte Carlo. 2008.\\
+
+\noindent
+Salakhutdinov, R. and Mnih, A. Probabilistic Matrix Factorization. NIPS. 2008.
 
 
+\section{Code}
+\renewcommand*\familydefault{\ttdefault}
+\lstset{
+language=Python,
+showstringspaces=true,
+formfeed=\newpage,
+tabsize=4,
+commentstyle=\itshape,
+basicstyle=\ttfamily,
+morekeywords={models, lambda, forms}
+}
 
+\newcommand{\code}[2]{
+\hrulefill
+\subsection*{#1}
+\lstinputlisting{#2}
+\vspace{2em}
+}
+\lstinputlisting{wishart.py}
+\newpage
+\lstinputlisting{pmf.py}
 
-
-
-
-
-
-
+\newpage
+\lstinputlisting{MixedMembershipMatrixFactorization.py}
 
 \end{document}
 
